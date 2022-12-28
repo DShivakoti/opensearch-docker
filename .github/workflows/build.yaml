@@ -28,16 +28,18 @@ jobs:
         # generate Docker tags based on the following events/attributes
         tags: |
           type=ref,event=tag
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha
+        flavor: |
+          latest=false
     - name: Login to quay.io
       if: startsWith(github.ref, 'refs/tags/')
-      uses: docker/login-action@v2
-      with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
+      run: |
+        echo "Should run only when new tag"
+        echo ${{ steps.meta.outputs.tags }}
+      #uses: docker/login-action@v2
+      #with:
+      #  registry: quay.io
+      #  username: ${{ secrets.QUAY_USERNAME }}
+      #  password: ${{ secrets.QUAY_PASSWORD }}
     - name: Build and push
       if: startsWith(github.ref, 'refs/tags/')
       id: build-push
@@ -47,10 +49,16 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-    - uses: sigstore/cosign-installer@v2.8.1
+    #- uses: sigstore/cosign-installer@v2.8.1
     - name: cosign
       if: ${{ github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/')}}
       env:
         COSIGN_EXPERIMENTAL: 1
       #run: cosign sign --oidc-issuer ${env.ACTIONS_ID_TOKEN_REQUEST_URL} ${{ env.IMAGE }}
-      run: cosign sign --oidc-issuer https://token.actions.githubusercontent.com ${{ env.IMAGE }}@${{ steps.build-push.outputs.digest }}
+      #run: cosign sign --oidc-issuer https://token.actions.githubusercontent.com ${{ env.IMAGE }}@${{ steps.build-push.outputs.digest }}
+      run: |
+        echo "Should run only when new tag"
+        echo ${{ steps.build-push.outputs.digest }}
+        echo ${{ steps.meta.outputs.tags }}
+
+      
