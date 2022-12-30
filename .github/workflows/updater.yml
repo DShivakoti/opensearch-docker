@@ -1,7 +1,5 @@
 name: Check prometheus-exporter-plugin-for-opensearch-1.x
 on:
-  schedule:
-    - cron: "0 7 * * *"
   workflow_dispatch:
 
 jobs:
